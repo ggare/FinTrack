@@ -1,0 +1,41 @@
+<tr class="border-t border-slate-100 transition hover:bg-slate-50">
+  <td class="px-6 py-4">
+    <span class="inline-flex items-center gap-2">
+      <span class="h-2.5 w-2.5 rounded-full" style="background: {{ b.category.color }}"></span>
+      {{ b.category.name }}
+    </span>
+  </td>
+  <td class="px-4 py-4 font-medium">{{ b.monthly_limit | money }}</td>
+  <td class="px-4 py-4">{{ b.spent | money }}</td>
+  <td class="px-4 py-4">
+    <div class="flex items-center gap-2">
+      <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+        <div class="h-2 rounded-full {% if b.percent >= 100 %}bg-rose-500{% elif b.percent >= 80 %}bg-amber-500{% else %}bg-emerald-500{% endif %}"
+             style="width: {% if b.percent > 100 %}100{% else %}{{ b.percent }}{% endif %}%"></div>
+      </div>
+      <span class="w-12 text-right text-xs {% if b.percent >= 100 %}font-semibold text-rose-600{% elif b.percent >= 80 %}text-amber-600{% else %}text-slate-500{% endif %}">
+        {{ b.percent | round(0) | int }}%
+      </span>
+    </div>
+  </td>
+  <td class="px-4 py-4 {% if b.remaining < 0 %}font-semibold text-rose-600{% else %}text-slate-600{% endif %}">
+    {{ b.remaining | money }}
+  </td>
+  <td class="px-4 py-4">
+    <div class="flex items-center justify-end gap-2">
+      <form hx-post="/budgets" hx-target="closest tr" hx-swap="outerHTML" class="flex items-center gap-1">
+        <input type="hidden" name="category_id" value="{{ b.category.id }}">
+        <input type="number" name="monthly_limit" value="{{ b.monthly_limit }}" step="0.01" min="1" required
+               class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-indigo-400">
+        <button type="submit"
+                class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs text-slate-600 transition hover:bg-slate-50">
+          Сохранить
+        </button>
+      </form>
+      <button hx-delete="/budgets/{{ b.category.id }}" hx-target="closest tr" hx-swap="delete"
+              hx-confirm="Удалить бюджет «{{ b.category.name }}»?"
+              class="rounded-lg p-1.5 text-slate-300 transition hover:bg-rose-50 hover:text-rose-500"
+              title="Удалить">✕</button>
+    </div>
+  </td>
+</tr>

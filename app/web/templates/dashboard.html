@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Дашборд — FinTrack{% endblock %}
+{% block content %}
+<div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Финансовый обзор</h1>
+    <p class="mt-1 text-sm text-slate-500">{{ month_label }} · базовая валюта {{ user.base_currency }}</p>
+  </div>
+  <a href="/transactions"
+     class="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500">
+    + Транзакция
+  </a>
+</div>
+
+<div class="grid gap-4 sm:grid-cols-3">
+  <div class="rounded-2xl bg-white p-6 shadow-sm">
+    <p class="text-sm text-slate-500">Доходы за месяц</p>
+    <p class="mt-2 text-2xl font-bold text-emerald-600">+{{ summary.income_total | money }} {{ user.base_currency }}</p>
+  </div>
+  <div class="rounded-2xl bg-white p-6 shadow-sm">
+    <p class="text-sm text-slate-500">Расходы за месяц</p>
+    <p class="mt-2 text-2xl font-bold text-rose-600">−{{ summary.expense_total | money }} {{ user.base_currency }}</p>
+  </div>
+  <div class="rounded-2xl bg-white p-6 shadow-sm">
+    <p class="text-sm text-slate-500">Баланс</p>
+    <p class="mt-2 text-2xl font-bold {% if summary.balance < 0 %}text-rose-600{% else %}text-indigo-600{% endif %}">
+      {{ summary.balance | money }} {{ user.base_currency }}
+    </p>
+  </div>
+</div>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-5">
+  <div class="rounded-2xl bg-white p-6 shadow-sm lg:col-span-2">
+    <h2 class="mb-4 font-semibold text-slate-900">Расходы по категориям</h2>
+    {% if donut %}
+    <div class="chart-box"><canvas id="donut-chart"></canvas></div>
+    {% else %}
+    <p class="py-12 text-center text-sm text-slate-400">В этом месяце расходов пока нет</p>
+    {% endif %}
+  </div>
+  <div class="rounded-2xl bg-white p-6 shadow-sm lg:col-span-3">
+    <h2 class="mb-4 font-semibold text-slate-900">Доходы и расходы, 6 месяцев</h2>
+    <div class="chart-box"><canvas id="bar-chart"></canvas></div>
+  </div>
+</div>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-3">
+  <div class="overflow-hidden rounded-2xl bg-white shadow-sm lg:col-span-2">
+    <div class="flex items-center justify-between px-6 py-4">
+      <h2 class="font-semibold text-slate-900">Последние операции</h2>
+      <a href="/transactions" class="text-sm text-indigo-600 hover:text-indigo-500">все →</a>
+    </div>
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-400">
+        <tr>
+          <th class="px-6 py-3">Дата</th>
+          <th class="px-4 py-3">Категория</th>
+          <th class="px-4 py-3 text-right">Сумма</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in recent %}
+          {% include "partials/_tx_row.html" %}
+        {% else %}
+          <tr><td colspan="3" class="px-6 py-8 text-center text-slate-400">Операций пока нет</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm" id="notifications-panel"
+       hx-get="/partials/notifications" hx-trigger="every 30s" hx-swap="innerHTML">
+    {% include "partials/_notifications.html" %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var donutData = {{ donut | tojson }};
+    var donutEl = document.getElementById("donut-chart");
+    if (donutEl && donutData.length > 0) {
+      new Chart(donutEl, {
+        type: "doughnut",
+        data: {
+          labels: donutData.map(function (d) { return d.label; }),
+          datasets: [{
+            data: donutData.map(function (d) { return d.value; }),
+            backgroundColor: donutData.map(function (d) { return d.color; }),
+            borderWidth: 0
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          cutout: "62%",
+          plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } }
+        }
+      });
+    }
+
+    var barEl = document.getElementById("bar-chart");
+    if (barEl) {
+      new Chart(barEl, {
+        type: "bar",
+        data: {
+          labels: {{ series_labels | tojson }},
+          datasets: [
+            { label: "Доходы", data: {{ series_income | tojson }}, backgroundColor: "#10b981", borderRadius: 6, maxBarThickness: 36 },
+            { label: "Расходы", data: {{ series_expense | tojson }}, backgroundColor: "#f43f5e", borderRadius: 6, maxBarThickness: 36 }
+          ]
+        },
+        options: {
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+/* Chart.js needs an explicit box to keep a stable height */
+.chart-box {
+  position: relative;
+  height: 260px;
+}
+
+.chart-box canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* Hide number input spinners for a cleaner look */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* HTMX: подсветка элемента во время запроса */
+.htmx-request {
+  opacity: 0.6;
+  transition: opacity 150ms ease-in;
+}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Бюджеты — FinTrack{% endblock %}
+{% block content %}
+<div class="mb-8">
+  <h1 class="text-2xl font-bold text-slate-900">Бюджеты</h1>
+  <p class="mt-1 text-sm text-slate-500">Лимиты трат по категориям на текущий месяц · {{ user.base_currency }}</p>
+</div>
+
+<div class="overflow-x-auto rounded-2xl bg-white shadow-sm">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-400">
+      <tr>
+        <th class="px-6 py-3">Категория</th>
+        <th class="px-4 py-3">Лимит</th>
+        <th class="px-4 py-3">Потрачено</th>
+        <th class="w-56 px-4 py-3">Прогресс</th>
+        <th class="px-4 py-3">Остаток</th>
+        <th class="px-4 py-3 text-right">Лимит / удалить</th>
+      </tr>
+    </thead>
+    <tbody id="budget-rows">
+      {% for b in budgets %}
+        {% include "partials/_budget_row.html" %}
+      {% else %}
+      <tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">Бюджеты ещё не заданы</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if available_categories %}
+<div class="mt-6 rounded-2xl bg-white p-6 shadow-sm">
+  <h2 class="mb-4 font-semibold text-slate-900">Новый бюджет</h2>
+  <form id="budget-add-form" hx-post="/budgets" hx-target="#budget-rows" hx-swap="afterbegin"
+        class="flex flex-wrap items-end gap-3">
+    <div>
+      <label class="mb-1 block text-xs font-medium text-slate-500">Категория расходов</label>
+      <select name="category_id" required
+              class="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400">
+        {% for c in available_categories %}
+        <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-slate-500">Лимит в месяц</label>
+      <input type="number" name="monthly_limit" step="0.01" min="1" required placeholder="10000"
+             class="w-40 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400">
+    </div>
+    <button type="submit"
+            class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500">
+      Добавить
+    </button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

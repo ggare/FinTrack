@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Виртуальные окружения
+.venv/
+venv/
+
+# Кэши инструментов
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Окружение и локальные данные
+.env
+*.sqlite
+*.sqlite3
+*.db
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
