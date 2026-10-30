@@ -27,7 +27,7 @@ async def update_me(
             select(User).where(User.username == data["username"], User.id != user.id)
         )
         if duplicate:
-            raise ConflictError("Это имя пользователя уже занято")
+            raise ConflictError("This username is already taken")
         user.username = data["username"]
     if data.get("base_currency"):
         user.base_currency = data["base_currency"].upper()

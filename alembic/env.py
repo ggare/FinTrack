@@ -8,7 +8,7 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-import app.models  # noqa: F401 — импортирует все модели в metadata
+import app.models  # noqa: F401 - imports all models into the metadata
 from app.core.config import get_settings
 from app.db.base import Base
 
@@ -17,7 +17,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# URL берём из настроек приложения: переменная окружения DATABASE_URL или .env
+# The URL comes from the app settings: the DATABASE_URL env var or .env
 config.set_main_option("sqlalchemy.url", get_settings().database_url)
 
 target_metadata = Base.metadata

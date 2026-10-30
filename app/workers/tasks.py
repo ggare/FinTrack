@@ -1,6 +1,6 @@
 """Celery tasks: exchange rates refresh, budget checks, notifications cleanup.
 
-Each task creates its own event loop and fresh DB/Redis connections —
+Each task creates its own event loop and fresh DB/Redis connections -
 the safe pattern for asyncio code inside a Celery worker process.
 """
 

@@ -71,7 +71,7 @@ async def export_csv(
         )
 
     filename = f"fintrack-transactions-{dt.date.today().isoformat()}.csv"
-    # BOM — чтобы Excel корректно открыл UTF-8.
+    # BOM so Excel opens UTF-8 correctly.
     return Response(
         content="\ufeff" + buffer.getvalue(),
         media_type="text/csv; charset=utf-8",

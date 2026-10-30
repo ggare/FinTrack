@@ -9,12 +9,12 @@ async def test_create_category(client: AsyncClient):
     headers = await auth_headers(client)
     response = await client.post(
         "/api/v1/categories",
-        json={"name": "Кофе с собой", "kind": "expense", "color": "#8b5cf6"},
+        json={"name": "Takeaway coffee", "kind": "expense", "color": "#8b5cf6"},
         headers=headers,
     )
     assert response.status_code == 201
     body = response.json()
-    assert body["name"] == "Кофе с собой"
+    assert body["name"] == "Takeaway coffee"
     assert body["kind"] == "expense"
     assert body["color"] == "#8b5cf6"
     assert body["id"] > 0
@@ -22,7 +22,7 @@ async def test_create_category(client: AsyncClient):
 
 async def test_duplicate_category_name_conflict(client: AsyncClient):
     headers = await auth_headers(client)
-    payload = {"name": "Дубликат", "kind": "expense"}
+    payload = {"name": "Duplicate", "kind": "expense"}
     first = await client.post("/api/v1/categories", json=payload, headers=headers)
     second = await client.post("/api/v1/categories", json=payload, headers=headers)
     assert first.status_code == 201
@@ -32,17 +32,17 @@ async def test_duplicate_category_name_conflict(client: AsyncClient):
 async def test_update_and_delete_category(client: AsyncClient):
     headers = await auth_headers(client)
     created = await client.post(
-        "/api/v1/categories", json={"name": "Старое имя", "kind": "expense"}, headers=headers
+        "/api/v1/categories", json={"name": "Old name", "kind": "expense"}, headers=headers
     )
     category_id = created.json()["id"]
 
     updated = await client.patch(
         f"/api/v1/categories/{category_id}",
-        json={"name": "Новое имя", "color": "#ff0000"},
+        json={"name": "New name", "color": "#ff0000"},
         headers=headers,
     )
     assert updated.status_code == 200
-    assert updated.json()["name"] == "Новое имя"
+    assert updated.json()["name"] == "New name"
     assert updated.json()["color"] == "#ff0000"
 
     deleted = await client.delete(f"/api/v1/categories/{category_id}", headers=headers)
@@ -50,7 +50,7 @@ async def test_update_and_delete_category(client: AsyncClient):
 
     listing = await client.get("/api/v1/categories", headers=headers)
     names = {c["name"] for c in listing.json()}
-    assert "Новое имя" not in names
+    assert "New name" not in names
 
 
 async def test_categories_are_isolated_between_users(client: AsyncClient):
@@ -58,16 +58,16 @@ async def test_categories_are_isolated_between_users(client: AsyncClient):
     bob = await auth_headers(client, email="bob@test.dev", username="bob")
 
     created = await client.post(
-        "/api/v1/categories", json={"name": "Личное Алисы", "kind": "expense"}, headers=alice
+        "/api/v1/categories", json={"name": "Alice's private", "kind": "expense"}, headers=alice
     )
     category_id = created.json()["id"]
 
-    # Боб не видит и не может изменить категорию Алисы
+    # Bob cannot see or modify Alice's category
     bob_list = await client.get("/api/v1/categories", headers=bob)
-    assert "Личное Алисы" not in {c["name"] for c in bob_list.json()}
+    assert "Alice's private" not in {c["name"] for c in bob_list.json()}
 
     patched = await client.patch(
-        f"/api/v1/categories/{category_id}", json={"name": "Взломано"}, headers=bob
+        f"/api/v1/categories/{category_id}", json={"name": "Hacked"}, headers=bob
     )
     assert patched.status_code == 404
 
@@ -78,7 +78,7 @@ async def test_categories_are_isolated_between_users(client: AsyncClient):
 async def test_delete_category_with_transactions_requires_force(client: AsyncClient):
     headers = await auth_headers(client)
     created = await client.post(
-        "/api/v1/categories", json={"name": "Напитки", "kind": "expense"}, headers=headers
+        "/api/v1/categories", json={"name": "Drinks", "kind": "expense"}, headers=headers
     )
     category_id = created.json()["id"]
     await client.post(
@@ -94,4 +94,4 @@ async def test_delete_category_with_transactions_requires_force(client: AsyncCli
     assert forced.status_code == 204
 
     listing = await client.get("/api/v1/categories", headers=headers)
-    assert "Напитки" not in {c["name"] for c in listing.json()}
+    assert "Drinks" not in {c["name"] for c in listing.json()}

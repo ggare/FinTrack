@@ -9,7 +9,7 @@ from app.core.security import decode_token
 from app.db.session import get_db
 from app.models.user import User
 
-# OAuth2-схема для Swagger UI (/api/docs); cookie — для веб-интерфейса.
+# The OAuth2 scheme powers Swagger UI (/api/docs); the cookie powers the web UI.
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 
@@ -23,7 +23,7 @@ async def get_current_user(
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Требуется авторизация",
+            detail="Authentication required",
             headers={"WWW-Authenticate": "Bearer"},
         )
     try:
@@ -32,7 +32,7 @@ async def get_current_user(
     except (jwt.PyJWTError, KeyError, ValueError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Недействительный или просроченный токен",
+            detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         ) from None
 
@@ -40,7 +40,7 @@ async def get_current_user(
     if user is None or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Пользователь не найден или деактивирован",
+            detail="User not found or deactivated",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user

@@ -1,4 +1,4 @@
-"""Вспомогательные функции для тестов."""
+"""Shared helpers for tests."""
 
 from httpx import AsyncClient
 
@@ -32,7 +32,7 @@ async def auth_headers(
     username: str = "user1",
     password: str = "password123",
 ) -> dict:
-    await api_register(client, email, username, password)  # 409 при повторе — не страшно
+    await api_register(client, email, username, password)  # a 409 on repeat is fine
     response = await api_login(client, email, password)
     return {"Authorization": f"Bearer {response.json()['access_token']}"}
 
@@ -40,7 +40,7 @@ async def auth_headers(
 async def create_category(
     client: AsyncClient,
     headers: dict,
-    name: str = "Еда",
+    name: str = "Food",
     kind: str = "expense",
 ) -> int:
     response = await client.post(

@@ -1,45 +1,45 @@
 .PHONY: install dev worker beat flower test lint format migrate autogenerate seed docker-up docker-down docker-logs ci
 
-install:            ## Установить зависимости для разработки
+install:            ## Install development dependencies
 	pip install -e ".[dev]"
 
-dev:                ## Запустить API с reload
+dev:                ## Run the API with auto-reload
 	uvicorn app.main:app --reload --port 8000
 
-worker:             ## Запустить Celery-воркер
+worker:             ## Start a Celery worker
 	celery -A app.workers.celery_app worker --loglevel=info
 
-beat:               ## Запустить Celery beat (расписание)
+beat:               ## Start Celery beat (the schedule)
 	celery -A app.workers.celery_app beat --loglevel=info
 
-flower:             ## Мониторинг Celery
+flower:             ## Celery monitoring dashboard
 	celery -A app.workers.celery_app flower --port=5555
 
-test:               ## Прогнать тесты
+test:               ## Run the tests
 	pytest -q
 
-lint:               ## Линтер
+lint:               ## Linter
 	ruff check app tests
 
-format:             ## Автоформатирование + исправление импортов
+format:             ## Auto-format + fix imports
 	ruff format app tests && ruff check --fix app tests
 
-migrate:            ## Применить миграции
+migrate:            ## Apply migrations
 	alembic upgrade head
 
-autogenerate:       ## Сгенерировать миграцию: make autogenerate m="add table"
+autogenerate:       ## Generate a migration: make autogenerate m="add table"
 	alembic revision --autogenerate -m "$(m)"
 
-seed:               ## Загрузить демо-данные
+seed:               ## Load demo data
 	python -m app.db.seeds
 
-docker-up:          ## Поднять весь стек в Docker
+docker-up:          ## Start the whole stack in Docker
 	docker compose up -d --build
 
-docker-down:        ## Остановить стек (данные останутся в volume)
+docker-down:        ## Stop the stack (data stays in volumes)
 	docker compose down
 
-docker-logs:        ## Логи API
+docker-logs:        ## API logs
 	docker compose logs -f api
 
-ci: lint test       ## Локальная проверка как в CI
+ci: lint test       ## Local check, same as CI

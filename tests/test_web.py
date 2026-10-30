@@ -1,4 +1,4 @@
-"""Web UI tests: страницы, cookie-аутентификация, HTMX-эндпоинты."""
+"""Web UI tests: pages, cookie authentication, HTMX endpoints."""
 
 from httpx import AsyncClient
 
@@ -37,7 +37,7 @@ async def test_web_register_login_logout_flow(client: AsyncClient):
 
     dashboard = await client.get("/dashboard")
     assert dashboard.status_code == 200
-    assert "Финансовый обзор" in dashboard.text
+    assert "Financial overview" in dashboard.text
 
     logout = await client.get("/logout", follow_redirects=False)
     assert logout.status_code == 303
@@ -52,14 +52,14 @@ async def test_web_login_wrong_password(client: AsyncClient):
         "/login", data={"email": "webby@test.dev", "password": "wrong-password"}
     )
     assert response.status_code == 400
-    assert "Неверный email или пароль" in response.text
+    assert "Invalid email or password" in response.text
 
 
 async def test_htmx_add_transaction_returns_row(client: AsyncClient):
     await _web_register(client)
 
-    # Cookie из веб-регистрации работает и в API (единый механизм аутентификации)
-    created = await client.post("/api/v1/categories", json={"name": "Тест HTMX", "kind": "expense"})
+    # The web-registration cookie also works in the API (shared auth mechanism)
+    created = await client.post("/api/v1/categories", json={"name": "HTMX test", "kind": "expense"})
     assert created.status_code == 201
     category_id = created.json()["id"]
 
@@ -67,21 +67,21 @@ async def test_htmx_add_transaction_returns_row(client: AsyncClient):
         "/transactions",
         data={
             "category_id": str(category_id),
-            "amount": "42,50",
+            "amount": "42.50",
             "currency": "RUB",
             "happened_at": "",
-            "note": "из HTMX",
+            "note": "from HTMX",
         },
         headers={"HX-Request": "true"},
     )
     assert response.status_code == 200
     assert response.text.strip().startswith("<tr")
-    assert "Тест HTMX" in response.text
+    assert "HTMX test" in response.text
 
 
 async def test_web_delete_transaction(client: AsyncClient):
     await _web_register(client, email="deleter@test.dev", username="deleter")
-    created = await client.post("/api/v1/categories", json={"name": "Удаляемое", "kind": "expense"})
+    created = await client.post("/api/v1/categories", json={"name": "Deletable", "kind": "expense"})
     category_id = created.json()["id"]
     tx = await client.post(
         "/api/v1/transactions",
@@ -98,20 +98,20 @@ async def test_web_delete_transaction(client: AsyncClient):
 
 async def test_transactions_and_budgets_pages_render(client: AsyncClient):
     await _web_register(client, email="pages@test.dev", username="pages")
-    created = await client.post("/api/v1/categories", json={"name": "Рендер", "kind": "expense"})
+    created = await client.post("/api/v1/categories", json={"name": "Render", "kind": "expense"})
     category_id = created.json()["id"]
     await client.post("/api/v1/transactions", json={"category_id": category_id, "amount": "150.00"})
     await client.put(f"/api/v1/budgets/{category_id}", json={"monthly_limit": "5000"})
 
     transactions_page = await client.get("/transactions")
     assert transactions_page.status_code == 200
-    assert "Рендер" in transactions_page.text
-    assert "150,00" in transactions_page.text
+    assert "Render" in transactions_page.text
+    assert "150.00" in transactions_page.text
 
     budgets_page = await client.get("/budgets")
     assert budgets_page.status_code == 200
-    assert "Бюджеты" in budgets_page.text
-    assert "5 000,00" in budgets_page.text
+    assert "Budgets" in budgets_page.text
+    assert "5,000.00" in budgets_page.text
 
     dashboard = await client.get("/dashboard")
     assert dashboard.status_code == 200

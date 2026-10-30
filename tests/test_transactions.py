@@ -9,14 +9,14 @@ from tests.helpers import auth_headers, create_category, create_transaction
 
 async def test_create_and_list_transaction(client: AsyncClient):
     headers = await auth_headers(client)
-    category_id = await create_category(client, headers, name="Еда")
+    category_id = await create_category(client, headers, name="Food")
 
     created = await create_transaction(client, headers, category_id, "123.45", "2026-10-05")
     assert created.status_code == 201
     body = created.json()
     assert float(body["amount"]) == 123.45
-    assert body["category"]["name"] == "Еда"
-    assert body["kind"] == "expense"  # наследуется от категории
+    assert body["category"]["name"] == "Food"
+    assert body["kind"] == "expense"  # inherited from the category
     assert body["currency"] == "RUB"
 
     listing = await client.get("/api/v1/transactions", headers=headers)
@@ -30,15 +30,15 @@ async def test_transaction_with_foreign_category_rejected(client: AsyncClient):
     alice = await auth_headers(client, email="alice@test.dev", username="alice")
     bob = await auth_headers(client, email="bob@test.dev", username="bob")
 
-    alice_category = await create_category(client, alice, name="Категория Алисы")
+    alice_category = await create_category(client, alice, name="Alice's category")
     response = await create_transaction(client, bob, alice_category, "10.00", "2026-10-01")
     assert response.status_code == 404
 
 
 async def test_transaction_list_filters(client: AsyncClient):
     headers = await auth_headers(client)
-    food = await create_category(client, headers, name="Еда")
-    salary = await create_category(client, headers, name="Аванс", kind="income")
+    food = await create_category(client, headers, name="Food")
+    salary = await create_category(client, headers, name="Advance", kind="income")
 
     await create_transaction(client, headers, food, "500.00", "2026-09-10")
     await create_transaction(client, headers, food, "300.00", "2026-10-02")
@@ -65,12 +65,12 @@ async def test_update_and_delete_transaction(client: AsyncClient):
 
     updated = await client.patch(
         f"/api/v1/transactions/{tx_id}",
-        json={"amount": "250.50", "note": "поправил сумму"},
+        json={"amount": "250.50", "note": "fixed the amount"},
         headers=headers,
     )
     assert updated.status_code == 200
     assert float(updated.json()["amount"]) == 250.50
-    assert updated.json()["note"] == "поправил сумму"
+    assert updated.json()["note"] == "fixed the amount"
 
     deleted = await client.delete(f"/api/v1/transactions/{tx_id}", headers=headers)
     assert deleted.status_code == 204
@@ -81,13 +81,13 @@ async def test_update_and_delete_transaction(client: AsyncClient):
 
 async def test_summary_report(client: AsyncClient):
     headers = await auth_headers(client)
-    food = await create_category(client, headers, name="Еда")
-    salary = await create_category(client, headers, name="Аванс", kind="income")
+    food = await create_category(client, headers, name="Food")
+    salary = await create_category(client, headers, name="Advance", kind="income")
 
     await create_transaction(client, headers, food, "1000.00", "2026-10-03")
     await create_transaction(client, headers, food, "500.50", "2026-10-12")
     await create_transaction(client, headers, salary, "5000.00", "2026-10-05")
-    # транзакция другого месяца не должна попасть в сводку
+    # a transaction from another month must not be included in the summary
     await create_transaction(client, headers, food, "999.00", "2026-09-20")
 
     response = await client.get("/api/v1/reports/summary?month=2026-10", headers=headers)
@@ -102,9 +102,9 @@ async def test_summary_report(client: AsyncClient):
 
 async def test_summary_report_converts_usd(client: AsyncClient):
     headers = await auth_headers(client)
-    food = await create_category(client, headers, name="Подписки")
+    food = await create_category(client, headers, name="Subscriptions")
 
-    # В fallback-курсах 1 USD = 92 RUB
+    # In the fallback rates 1 USD = 92 RUB
     await create_transaction(client, headers, food, "10.00", "2026-10-05", currency="USD")
 
     response = await client.get("/api/v1/reports/summary?month=2026-10", headers=headers)
@@ -115,7 +115,7 @@ async def test_summary_report_converts_usd(client: AsyncClient):
 async def test_monthly_series(client: AsyncClient):
     headers = await auth_headers(client)
     food = await create_category(client, headers)
-    salary = await create_category(client, headers, name="Аванс", kind="income")
+    salary = await create_category(client, headers, name="Advance", kind="income")
 
     current = dt.date.today()
     await create_transaction(
@@ -145,12 +145,12 @@ async def test_monthly_series(client: AsyncClient):
 
 async def test_csv_export(client: AsyncClient):
     headers = await auth_headers(client)
-    category_id = await create_category(client, headers, name="Экспорт")
+    category_id = await create_category(client, headers, name="Export")
     await create_transaction(client, headers, category_id, "77.70", "2026-10-01")
 
     response = await client.get("/api/v1/reports/export.csv", headers=headers)
     assert response.status_code == 200
     assert "text/csv" in response.headers["content-type"]
     assert "attachment" in response.headers["content-disposition"]
-    assert "Экспорт" in response.text
+    assert "Export" in response.text
     assert response.text.splitlines()[0].startswith("\ufeffdate;category;kind")

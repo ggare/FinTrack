@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "fintrack"
 version = "1.0.0"
-description = "FinTrack — трекер личных финансов: FastAPI, SQLAlchemy 2.0 (async), PostgreSQL, Redis, Celery, HTMX"
+description = "FinTrack - personal finance tracker: FastAPI, SQLAlchemy 2.0 (async), PostgreSQL, Redis, Celery, HTMX"
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
@@ -58,17 +58,14 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "C4", "SIM", "RUF", "ASYNC", "T20"]
 ignore = [
-    "B008",       # Depends() в значениях по умолчанию — идиома FastAPI
-    "RUF001",     # кириллические строки — это норма для русскоязычного проекта
-    "RUF002",
-    "RUF003",
+    "B008",       # Depends() in defaults is a standard FastAPI idiom
 ]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["E402"]  # env-переменные выставляются до импорта приложения
+"tests/*" = ["E402"]  # env variables are set before importing the app
 
 [tool.coverage.run]
 source = ["app"]

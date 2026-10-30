@@ -47,6 +47,6 @@ async def delete_category(
     category_id: int,
     user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
-    force: bool = Query(False, description="Удалить категорию вместе со всеми её транзакциями"),
+    force: bool = Query(False, description="Delete the category with all its transactions"),
 ) -> None:
     await categories.delete_category(db, user.id, category_id, force=force)

@@ -1,12 +1,12 @@
-"""Тестовые фикстуры: SQLite in-memory + fakeredis + ASGI-клиент.
+"""Test fixtures: in-memory SQLite + fakeredis + an ASGI client.
 
-Переменные окружения выставляются ДО импорта приложения.
+Environment variables are set BEFORE importing the application.
 """
 
 import os
 
-# Выставляем ДО импорта приложения. На случай, если в системе уже есть
-# «чужая» DATABASE_URL (например, CI-раннер), принудительно используем SQLite.
+# Set BEFORE importing the app. In case the system already has a foreign
+# DATABASE_URL (e.g. on a CI runner), force SQLite.
 os.environ["DATABASE_URL"] = "sqlite+aiosqlite://"
 os.environ.setdefault("LOGIN_RATE_LIMIT", "50")
 os.environ.setdefault("BCRYPT_ROUNDS", "4")

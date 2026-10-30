@@ -44,14 +44,14 @@ async def create_transaction(
 ) -> Transaction:
     category = await get_owned_category(db, user.id, payload.category_id)
     if category is None:
-        raise NotFoundError("Категория не найдена")
+        raise NotFoundError("Category not found")
 
     tx = Transaction(
         user_id=user.id,
         category_id=category.id,
         amount=payload.amount,
         currency=payload.currency,
-        kind=category.kind,  # тип транзакции наследуется от категории
+        kind=category.kind,  # the kind is inherited from the category
         happened_at=payload.happened_at,
         note=payload.note,
     )
@@ -71,13 +71,13 @@ async def update_transaction(
 ) -> Transaction:
     tx = await get_owned_transaction(db, user.id, tx_id)
     if tx is None:
-        raise NotFoundError("Транзакция не найдена")
+        raise NotFoundError("Transaction not found")
 
     data = payload.model_dump(exclude_unset=True)
     if "category_id" in data and data["category_id"] is not None:
         category = await get_owned_category(db, user.id, data["category_id"])
         if category is None:
-            raise NotFoundError("Категория не найдена")
+            raise NotFoundError("Category not found")
         tx.category_id = category.id
         tx.kind = category.kind
     for field in ("amount", "currency", "happened_at", "note"):
@@ -91,7 +91,7 @@ async def update_transaction(
 async def delete_transaction(db: AsyncSession, user: User, tx_id: int) -> None:
     tx = await get_owned_transaction(db, user.id, tx_id)
     if tx is None:
-        raise NotFoundError("Транзакция не найдена")
+        raise NotFoundError("Transaction not found")
     await db.delete(tx)
     await db.commit()
 

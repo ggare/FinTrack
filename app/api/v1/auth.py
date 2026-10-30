@@ -42,7 +42,7 @@ async def login(
     )
     user = await users.authenticate(db, form.username, form.password)
     if user is None:
-        raise AuthError("Неверный email или пароль")
+        raise AuthError("Invalid email or password")
     return Token(access_token=create_access_token(str(user.id)))
 
 

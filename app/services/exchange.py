@@ -69,6 +69,6 @@ def convert(amount: Decimal, currency: str, base: str, rates: dict[str, float]) 
     rate_from = rates.get(currency)
     rate_to = rates.get(base)
     if not rate_from or not rate_to:
-        raise ValidationDomainError(f"Нет курса для конвертации {currency} → {base}")
+        raise ValidationDomainError(f"No exchange rate to convert {currency} to {base}")
     result = Decimal(str(amount)) / Decimal(str(rate_from)) * Decimal(str(rate_to))
     return result.quantize(Decimal("0.01"))

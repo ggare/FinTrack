@@ -15,7 +15,7 @@ down_revision = None
 branch_labels = None
 depends_on = None
 
-# Переносимый enum: VARCHAR + CHECK на PostgreSQL и SQLite
+# Portable enum: VARCHAR + CHECK, works on both PostgreSQL and SQLite
 kind_enum = sa.Enum("expense", "income", name="categorykind", native_enum=False, length=10)
 
 

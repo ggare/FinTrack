@@ -21,10 +21,10 @@ async def enforce_rate_limit(request: Request, scope: str, limit: int, window_se
         if current > limit:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail=f"Слишком много попыток. Повторите через {window_seconds} секунд.",
+                detail=f"Too many attempts. Try again in {window_seconds} seconds.",
             )
     except HTTPException:
         raise
     except Exception:
-        # Redis недоступен — не блокируем пользователей.
+        # Redis unavailable - do not block users.
         logger.warning("rate_limiter_unavailable", scope=scope)

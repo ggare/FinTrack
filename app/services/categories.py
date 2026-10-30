@@ -11,14 +11,14 @@ from app.models.user import User
 from app.schemas.category import CategoryCreate, CategoryUpdate
 
 DEFAULT_CATEGORIES: list[tuple[str, CategoryKind, str]] = [
-    ("Продукты", CategoryKind.expense, "#22c55e"),
-    ("Транспорт", CategoryKind.expense, "#3b82f6"),
-    ("Жильё", CategoryKind.expense, "#8b5cf6"),
-    ("Здоровье", CategoryKind.expense, "#ef4444"),
-    ("Развлечения", CategoryKind.expense, "#f59e0b"),
-    ("Кафе и рестораны", CategoryKind.expense, "#ec4899"),
-    ("Зарплата", CategoryKind.income, "#10b981"),
-    ("Прочие доходы", CategoryKind.income, "#14b8a6"),
+    ("Groceries", CategoryKind.expense, "#22c55e"),
+    ("Transport", CategoryKind.expense, "#3b82f6"),
+    ("Housing", CategoryKind.expense, "#8b5cf6"),
+    ("Health", CategoryKind.expense, "#ef4444"),
+    ("Entertainment", CategoryKind.expense, "#f59e0b"),
+    ("Dining out", CategoryKind.expense, "#ec4899"),
+    ("Salary", CategoryKind.income, "#10b981"),
+    ("Other income", CategoryKind.income, "#14b8a6"),
 ]
 
 
@@ -46,7 +46,7 @@ async def get_owned_category(db: AsyncSession, user_id: int, category_id: int) -
 async def create_category(db: AsyncSession, user_id: int, payload: CategoryCreate) -> Category:
     name = payload.name.strip()
     if await db.scalar(select(Category).where(Category.user_id == user_id, Category.name == name)):
-        raise ConflictError("Категория с таким названием уже существует")
+        raise ConflictError("A category with this name already exists")
     category = Category(user_id=user_id, name=name, kind=payload.kind, color=payload.color)
     db.add(category)
     await db.commit()
@@ -58,7 +58,7 @@ async def update_category(
 ) -> Category:
     category = await get_owned_category(db, user_id, category_id)
     if category is None:
-        raise NotFoundError("Категория не найдена")
+        raise NotFoundError("Category not found")
 
     data = payload.model_dump(exclude_unset=True)
     if "name" in data:
@@ -71,7 +71,7 @@ async def update_category(
             )
         )
         if duplicate:
-            raise ConflictError("Категория с таким названием уже существует")
+            raise ConflictError("A category with this name already exists")
         category.name = name
     if data.get("color"):
         category.color = data["color"]
@@ -86,7 +86,7 @@ async def delete_category(
 ) -> None:
     category = await get_owned_category(db, user_id, category_id)
     if category is None:
-        raise NotFoundError("Категория не найдена")
+        raise NotFoundError("Category not found")
 
     tx_count = (
         await db.scalar(
@@ -98,8 +98,8 @@ async def delete_category(
     )
     if tx_count and not force:
         raise ValidationDomainError(
-            f"В категории {tx_count} транзакций. Передайте force=true, "
-            "чтобы удалить их вместе с категорией."
+            f"The category has {tx_count} transaction(s). Pass force=true "
+            "to delete them along with the category."
         )
 
     await db.execute(delete(Budget).where(Budget.category_id == category_id))

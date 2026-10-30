@@ -28,8 +28,8 @@ async def test_register_creates_default_categories(client: AsyncClient):
     response = await client.get("/api/v1/categories", headers=headers)
     assert response.status_code == 200
     names = {c["name"] for c in response.json()}
-    assert "Продукты" in names
-    assert "Зарплата" in names
+    assert "Groceries" in names
+    assert "Salary" in names
     assert len(response.json()) == 8
 
 

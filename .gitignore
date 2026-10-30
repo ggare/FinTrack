@@ -6,17 +6,17 @@ build/
 dist/
 .eggs/
 
-# Виртуальные окружения
+# Virtual environments
 .venv/
 venv/
 
-# Кэши инструментов
+# Tool caches
 .pytest_cache/
 .ruff_cache/
 .coverage
 htmlcov/
 
-# Окружение и локальные данные
+# Environment and local data
 .env
 *.sqlite
 *.sqlite3

@@ -13,9 +13,9 @@ from app.services.categories import create_default_categories
 async def register_user(db: AsyncSession, payload: UserCreate) -> User:
     email = payload.email.lower()
     if await db.scalar(select(User).where(User.email == email)):
-        raise ConflictError("Пользователь с таким email уже зарегистрирован")
+        raise ConflictError("A user with this email is already registered")
     if await db.scalar(select(User).where(User.username == payload.username)):
-        raise ConflictError("Это имя пользователя уже занято")
+        raise ConflictError("This username is already taken")
 
     user = User(
         email=email,

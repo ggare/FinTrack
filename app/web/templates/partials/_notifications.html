@@ -1,9 +1,9 @@
 <div class="mb-3 flex items-center justify-between">
-  <h2 class="font-semibold text-slate-900">Уведомления</h2>
+  <h2 class="font-semibold text-slate-900">Notifications</h2>
   {% if notifications %}
   <button hx-post="/notifications/read-all" hx-target="#notifications-panel" hx-swap="innerHTML"
           class="text-xs font-medium text-indigo-600 transition hover:text-indigo-500">
-    Прочитать все
+    Mark all as read
   </button>
   {% endif %}
 </div>
@@ -14,6 +14,6 @@
 </div>
 {% else %}
 <p class="text-xs leading-relaxed text-slate-400">
-  Здесь появятся оповещения о превышении бюджетов (их создаёт фоновый воркер каждое утро).
+  Budget overrun alerts will appear here (a background worker creates them every morning).
 </p>
 {% endfor %}

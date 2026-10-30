@@ -1,5 +1,5 @@
 <tr class="border-t border-slate-100 transition hover:bg-slate-50">
-  <td class="whitespace-nowrap px-6 py-3 text-slate-500">{{ tx.happened_at.strftime("%d.%m.%Y") }}</td>
+  <td class="whitespace-nowrap px-6 py-3 text-slate-500">{{ tx.happened_at.strftime("%b %d, %Y") }}</td>
   <td class="px-4 py-3">
     <span class="inline-flex items-center gap-2">
       <span class="h-2.5 w-2.5 rounded-full" style="background: {{ tx.category.color }}"></span>
@@ -13,9 +13,9 @@
   <td class="max-w-[16rem] truncate px-4 py-3 text-slate-400" title="{{ tx.note or '' }}">{{ tx.note or "" }}</td>
   <td class="px-4 py-3 text-right">
     <button hx-delete="/transactions/{{ tx.id }}" hx-target="closest tr" hx-swap="delete"
-            hx-confirm="Удалить транзакцию?"
+            hx-confirm="Delete this transaction?"
             class="rounded-lg p-1.5 text-slate-300 transition hover:bg-rose-50 hover:text-rose-500"
-            title="Удалить">✕</button>
+            title="Delete">✕</button>
   </td>
   {% endif %}
 </tr>

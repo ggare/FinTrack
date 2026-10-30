@@ -21,23 +21,23 @@
   }
   window.showToast = showToast;
 
-  // Успешное добавление транзакции: очистить форму и показать уведомление
+  // Successful transaction submit: clear the form and show a toast
   document.addEventListener("htmx:afterRequest", function (evt) {
     var elt = evt.detail.elt;
     if (!evt.detail.successful || !elt || !elt.id) return;
     if (elt.id === "tx-form") {
       elt.reset();
-      showToast("Транзакция добавлена");
+      showToast("Transaction added");
     }
     if (elt.id === "budget-add-form") {
       elt.reset();
-      showToast("Бюджет добавлен");
+      showToast("Budget saved");
     }
   });
 
-  // Ошибки HTMX-запросов: показать текст от сервера
+  // HTMX request errors: show the server-provided text
   document.addEventListener("htmx:responseError", function (evt) {
     var text = (evt.detail.xhr && evt.detail.xhr.responseText) || "";
-    showToast(text || "Что-то пошло не так", true);
+    showToast(text || "Something went wrong", true);
   });
 })();

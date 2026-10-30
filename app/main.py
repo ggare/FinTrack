@@ -40,9 +40,9 @@ def create_app() -> FastAPI:
         title="FinTrack API",
         version=__version__,
         description=(
-            "Трекер личных финансов: категории, транзакции, бюджеты, аналитика.\n\n"
-            "Аутентификация: `POST /api/v1/auth/login` (OAuth2 password flow), "
-            "далее — `Authorization: Bearer <token>`."
+            "Personal finance tracker: categories, transactions, budgets, analytics.\n\n"
+            "Authentication: `POST /api/v1/auth/login` (OAuth2 password flow), "
+            "then `Authorization: Bearer <token>`."
         ),
         docs_url="/api/docs",
         redoc_url="/api/redoc",
@@ -86,7 +86,7 @@ def create_app() -> FastAPI:
         name="static",
     )
 
-    # Метрики Prometheus: GET /metrics
+    # Prometheus metrics: GET /metrics
     Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
 
     return app

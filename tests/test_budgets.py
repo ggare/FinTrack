@@ -9,7 +9,7 @@ from tests.helpers import auth_headers, create_category, create_transaction
 
 async def test_set_budget_and_check_progress(client: AsyncClient):
     headers = await auth_headers(client)
-    food = await create_category(client, headers, name="Еда")
+    food = await create_category(client, headers, name="Food")
 
     today = dt.date.today()
     await create_transaction(
@@ -25,12 +25,12 @@ async def test_set_budget_and_check_progress(client: AsyncClient):
     assert float(body["spent"]) == 3000.0
     assert float(body["remaining"]) == 7000.0
     assert body["percent"] == 30.0
-    assert body["category"]["name"] == "Еда"
+    assert body["category"]["name"] == "Food"
 
 
 async def test_budget_upsert_and_delete(client: AsyncClient):
     headers = await auth_headers(client)
-    food = await create_category(client, headers, name="Кафе")
+    food = await create_category(client, headers, name="Cafe")
 
     first = await client.put(
         f"/api/v1/budgets/{food}", json={"monthly_limit": "5000"}, headers=headers
@@ -44,7 +44,7 @@ async def test_budget_upsert_and_delete(client: AsyncClient):
     assert float(second.json()["monthly_limit"]) == 7500.0
 
     listing = await client.get("/api/v1/budgets", headers=headers)
-    assert len(listing.json()) == 1  # upsert, не дубль
+    assert len(listing.json()) == 1  # upsert, no duplicate
 
     deleted = await client.delete(f"/api/v1/budgets/{food}", headers=headers)
     assert deleted.status_code == 204
@@ -53,7 +53,7 @@ async def test_budget_upsert_and_delete(client: AsyncClient):
 
 async def test_budget_only_for_expense_category(client: AsyncClient):
     headers = await auth_headers(client)
-    salary = await create_category(client, headers, name="Фриланс", kind="income")
+    salary = await create_category(client, headers, name="Freelance", kind="income")
 
     response = await client.put(
         f"/api/v1/budgets/{salary}", json={"monthly_limit": "1000"}, headers=headers

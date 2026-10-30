@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru" class="h-full">
+<html lang="en" class="h-full">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,24 +15,24 @@
 <div class="flex min-h-screen">
   <aside class="hidden w-64 flex-col bg-slate-900 text-slate-300 md:flex">
     <div class="flex items-center gap-3 px-6 py-6">
-      <div class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-500 font-bold text-white">₽</div>
+      <div class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-500 font-bold text-white">$</div>
       <div>
         <p class="text-lg font-semibold text-white">FinTrack</p>
-        <p class="text-xs text-slate-400">личные финансы</p>
+        <p class="text-xs text-slate-400">personal finances</p>
       </div>
     </div>
     <nav class="mt-4 flex-1 space-y-1 px-3 text-sm">
       <a href="/dashboard"
          class="flex items-center gap-3 rounded-lg px-3 py-2.5 transition {% if active == 'dashboard' %}bg-slate-800 text-white{% else %}hover:bg-slate-800{% endif %}">
-        <span class="grid h-5 w-5 place-items-center">▤</span> Дашборд
+        <span class="grid h-5 w-5 place-items-center">▤</span> Dashboard
       </a>
       <a href="/transactions"
          class="flex items-center gap-3 rounded-lg px-3 py-2.5 transition {% if active == 'transactions' %}bg-slate-800 text-white{% else %}hover:bg-slate-800{% endif %}">
-        <span class="grid h-5 w-5 place-items-center">≡</span> Транзакции
+        <span class="grid h-5 w-5 place-items-center">≡</span> Transactions
       </a>
       <a href="/budgets"
          class="flex items-center gap-3 rounded-lg px-3 py-2.5 transition {% if active == 'budgets' %}bg-slate-800 text-white{% else %}hover:bg-slate-800{% endif %}">
-        <span class="grid h-5 w-5 place-items-center">◎</span> Бюджеты
+        <span class="grid h-5 w-5 place-items-center">◎</span> Budgets
       </a>
       <a href="/api/docs" target="_blank"
          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-400 transition hover:bg-slate-800 hover:text-slate-200">
@@ -42,7 +42,7 @@
     <div class="border-t border-slate-800 px-5 py-4 text-xs">
       <p class="truncate text-slate-200">{{ user.username }}</p>
       <p class="truncate text-slate-500">{{ user.email }}</p>
-      <a href="/logout" class="mt-2 inline-block text-rose-400 transition hover:text-rose-300">Выйти</a>
+      <a href="/logout" class="mt-2 inline-block text-rose-400 transition hover:text-rose-300">Log out</a>
     </div>
   </aside>
 

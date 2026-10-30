@@ -1,6 +1,6 @@
 """Structured logging via structlog.
 
-Console (pretty) output in development, JSON lines in production —
+Console (pretty) output in development, JSON lines in production -
 ready for log collectors like Loki/ELK.
 """
 

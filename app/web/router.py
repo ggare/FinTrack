@@ -1,7 +1,7 @@
 """Server-rendered web UI (Jinja2 + HTMX).
 
-Аутентификация — через httpOnly-cookie с JWT (та же зависимость get_current_user,
-что и в REST API). Страницы рендерятся на сервере, интерактивность — HTMX.
+Authentication uses an httpOnly JWT cookie (the same get_current_user dependency
+as in the REST API). Pages are rendered on the server; interactivity comes from HTMX.
 """
 
 import datetime as dt
@@ -47,26 +47,26 @@ router = APIRouter(include_in_schema=False)
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-MONTHS_RU = [
-    "Январь",
-    "Февраль",
-    "Март",
-    "Апрель",
-    "Май",
-    "Июнь",
-    "Июль",
-    "Август",
-    "Сентябрь",
-    "Октябрь",
-    "Ноябрь",
-    "Декабрь",
+MONTHS_EN = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
 ]
 
 
 def _money(value) -> str:
-    """12345.6 -> '12 345,60' (русский формат)."""
+    """12345.6 -> '12,345.60'."""
     try:
-        return f"{Decimal(str(value)):,.2f}".replace(",", " ").replace(".", ",")
+        return f"{Decimal(str(value)):,.2f}"
     except (InvalidOperation, ValueError, TypeError):
         return str(value)
 
@@ -136,7 +136,7 @@ async def login_submit(
         return templates.TemplateResponse(
             request,
             "login.html",
-            {"error": "Неверный email или пароль"},
+            {"error": "Invalid email or password"},
             status_code=400,
         )
     response = RedirectResponse("/dashboard", status_code=303)
@@ -172,7 +172,12 @@ async def register_submit(
         return templates.TemplateResponse(
             request,
             "register.html",
-            {"error": "Проверьте поля: имя от 3 символов, пароль от 8 символов, корректный email"},
+            {
+                "error": (
+                    "Check the fields: a username of at least 3 characters, "
+                    "a password of at least 8 characters, a valid email"
+                )
+            },
             status_code=400,
         )
     response = RedirectResponse("/dashboard", status_code=303)
@@ -216,7 +221,7 @@ async def dashboard(
     context = {
         "active": "dashboard",
         "user": user,
-        "month_label": f"{MONTHS_RU[month.month - 1]} {month.year}",
+        "month_label": f"{MONTHS_EN[month.month - 1]} {month.year}",
         "summary": summary,
         "recent": recent,
         "notifications": unread,
@@ -249,7 +254,7 @@ async def mark_notifications_read(
     db: AsyncSession = Depends(get_db),
 ) -> Response:
     if user is None:
-        return Response("Требуется вход", status_code=401)
+        return Response("Login required", status_code=401)
     await notification_service.mark_all_read(db, user.id)
     if request.headers.get("HX-Request"):
         return templates.TemplateResponse(
@@ -351,7 +356,7 @@ async def add_transaction(
     note: str = Form(""),
 ) -> Response:
     if user is None:
-        return Response("Требуется вход", status_code=401)
+        return Response("Login required", status_code=401)
 
     try:
         payload = TransactionCreate(
@@ -363,7 +368,7 @@ async def add_transaction(
         )
         tx = await tx_service.create_transaction(db, user, payload)
     except (InvalidOperation, ValueError, ValidationError):
-        return Response("Некорректная сумма или дата", status_code=422)
+        return Response("Invalid amount or date", status_code=422)
     except DomainError as exc:
         return Response(exc.detail, status_code=422)
 
@@ -379,12 +384,12 @@ async def delete_transaction_web(
     transaction_id: int = 0,
 ) -> Response:
     if user is None:
-        return Response("Требуется вход", status_code=401)
+        return Response("Login required", status_code=401)
     try:
         await tx_service.delete_transaction(db, user, transaction_id)
     except DomainError:
-        return Response("Транзакция не найдена", status_code=404)
-    return Response(status_code=200)  # HTMX: hx-swap="delete" уберёт строку
+        return Response("Transaction not found", status_code=404)
+    return Response(status_code=200)  # HTMX: hx-swap="delete" removes the row
 
 
 # --------------------------------------------------------------------------- #
@@ -426,7 +431,7 @@ async def save_budget(
     monthly_limit: str = Form(...),
 ) -> Response:
     if user is None:
-        return Response("Требуется вход", status_code=401)
+        return Response("Login required", status_code=401)
 
     try:
         limit = Decimal(monthly_limit.replace(",", "."))
@@ -434,7 +439,7 @@ async def save_budget(
             raise ValueError
         budget = await budget_service.set_budget(db, user, category_id, limit)
     except (InvalidOperation, ValueError):
-        return Response("Лимит должен быть положительным числом", status_code=422)
+        return Response("The limit must be a positive number", status_code=422)
     except DomainError as exc:
         return Response(exc.detail, status_code=422)
 
@@ -450,9 +455,9 @@ async def delete_budget_web(
     category_id: int = 0,
 ) -> Response:
     if user is None:
-        return Response("Требуется вход", status_code=401)
+        return Response("Login required", status_code=401)
     try:
         await budget_service.delete_budget(db, user, category_id)
     except DomainError:
-        return Response("Бюджет не найден", status_code=404)
+        return Response("Budget not found", status_code=404)
     return Response(status_code=200)

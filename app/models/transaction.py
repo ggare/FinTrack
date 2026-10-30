@@ -25,7 +25,7 @@ class Transaction(TimestampMixin, Base):
     note: Mapped[str | None] = mapped_column(Text)
 
     user = relationship("User", back_populates="transactions")
-    # selectin: категория подгружается вторым запросом (IN (...)) — безопасно в async.
+    # selectin: the category loads via a second query (IN (...)) - async-safe.
     category = relationship("Category", back_populates="transactions", lazy="selectin")
 
     def __repr__(self) -> str:  # pragma: no cover

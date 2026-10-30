@@ -21,7 +21,7 @@ input[type="number"] {
   appearance: textfield;
 }
 
-/* HTMX: подсветка элемента во время запроса */
+/* HTMX: dim an element while its request is in flight */
 .htmx-request {
   opacity: 0.6;
   transition: opacity 150ms ease-in;

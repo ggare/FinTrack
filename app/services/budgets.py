@@ -77,9 +77,9 @@ async def set_budget(
 ) -> BudgetRead:
     category = await get_owned_category(db, user.id, category_id)
     if category is None:
-        raise NotFoundError("Категория не найдена")
+        raise NotFoundError("Category not found")
     if category.kind != CategoryKind.expense:
-        raise ValidationDomainError("Бюджет можно задать только для категории расходов")
+        raise ValidationDomainError("Budgets can only be set for expense categories")
 
     budget = await db.scalar(
         select(Budget).where(Budget.user_id == user.id, Budget.category_id == category_id)
@@ -103,7 +103,7 @@ async def delete_budget(db: AsyncSession, user: User, category_id: int) -> None:
         select(Budget).where(Budget.user_id == user.id, Budget.category_id == category_id)
     )
     if budget is None:
-        raise NotFoundError("Бюджет не найден")
+        raise NotFoundError("Budget not found")
     await db.delete(budget)
     await db.commit()
 
@@ -144,7 +144,7 @@ async def check_all_budgets(db: AsyncSession, redis: aioredis.Redis | None = Non
             continue
 
         percent = int((spent / limit * 100).to_integral_value()) if limit else 0
-        title = f"Бюджет «{category.name}» — {percent}%"
+        title = f'Budget "{category.name}": {percent}%'
         exists = await db.scalar(
             select(Notification).where(
                 Notification.user_id == user.id,
@@ -157,13 +157,12 @@ async def check_all_budgets(db: AsyncSession, redis: aioredis.Redis | None = Non
 
         if spent >= limit:
             message = (
-                f"Лимит {limit} {user.base_currency} превышен: потрачено {spent}. "
-                "Пора притормозить."
+                f"Limit of {limit} {user.base_currency} exceeded: {spent} spent. Time to slow down."
             )
         else:
             message = (
-                f"Потрачено {spent} из {limit} {user.base_currency} ({percent}%). "
-                "Осталось меньше 20% бюджета."
+                f"{spent} out of {limit} {user.base_currency} spent ({percent}%). "
+                "Less than 20% of the budget remains."
             )
         db.add(Notification(user_id=user.id, title=title, message=message))
         created += 1

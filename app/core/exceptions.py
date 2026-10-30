@@ -13,7 +13,7 @@ class DomainError(Exception):
 
     status_code = 400
 
-    def __init__(self, detail: str = "Ошибка обработки") -> None:
+    def __init__(self, detail: str = "Request processing error") -> None:
         self.detail = detail
         super().__init__(detail)
 
@@ -21,28 +21,28 @@ class DomainError(Exception):
 class ValidationDomainError(DomainError):
     status_code = 400
 
-    def __init__(self, detail: str = "Некорректные данные") -> None:
+    def __init__(self, detail: str = "Invalid data") -> None:
         super().__init__(detail)
 
 
 class NotFoundError(DomainError):
     status_code = 404
 
-    def __init__(self, detail: str = "Объект не найден") -> None:
+    def __init__(self, detail: str = "Object not found") -> None:
         super().__init__(detail)
 
 
 class AuthError(DomainError):
     status_code = 401
 
-    def __init__(self, detail: str = "Ошибка аутентификации") -> None:
+    def __init__(self, detail: str = "Authentication error") -> None:
         super().__init__(detail)
 
 
 class ConflictError(DomainError):
     status_code = 409
 
-    def __init__(self, detail: str = "Конфликт данных") -> None:
+    def __init__(self, detail: str = "Data conflict") -> None:
         super().__init__(detail)
 
 
